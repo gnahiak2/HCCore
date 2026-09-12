@@ -123,24 +123,32 @@ public class PlayerData {
     }
   }
 
-  // The name carried in the player's GameProfile. GameProfile names are limited to 16
-  // characters, so longer nicknames are split: the first 16 characters go here and the rest is
-  // appended via the scoreboard team suffix (see updateTeamDecorations) so the full nickname is
-  // still shown on the name tag above the player's head.
+  // The name carried in the player's GameProfile. GameProfile names are limited to 16 UTF-16
+  // units, so longer nicknames are split: the first 16 units go here and the rest is appended
+  // via the scoreboard team suffix (see updateTeamDecorations) so the full nickname is still
+  // shown on the vanilla name tag above the player's head. The split never lands between the two
+  // halves of a surrogate pair, so supplementary characters are kept intact.
   public String getProfileName() {
     String nickname = this.getNickname();
     if (nickname != null) {
-      return nickname.length() <= 16 ? nickname : nickname.substring(0, 16);
+      return nickname.substring(0, getSplitIndex(nickname));
     }
     return this.offlinePlayer.getName();
   }
 
   public String getNicknameOverflow() {
     String nickname = this.getNickname();
-    if (nickname == null || nickname.length() <= 16) {
+    if (nickname == null) {
       return "";
     }
-    return nickname.substring(16);
+    return nickname.substring(getSplitIndex(nickname));
+  }
+
+  private static int getSplitIndex(String nickname) {
+    if (nickname.length() <= 16) {
+      return nickname.length();
+    }
+    return Character.isHighSurrogate(nickname.charAt(15)) ? 15 : 16;
   }
 
   @SuppressWarnings("unused")
