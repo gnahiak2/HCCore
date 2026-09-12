@@ -27,7 +27,7 @@ The overhead nametag is **not** driven by `Player#displayName(...)` or `playerLi
 team.prefix + <GameProfile name from the PLAYER_INFO packet> + team.suffix
 ```
 
-The GameProfile name is hard-limited to **16 chars**; `team.prefix`/`team.suffix` are unlimited text Components. `NameChangeListener` (ProtocolLib) rewrites the profile name, and `PlayerData` splits a long nickname: first 16 chars in the profile name (`getProfileName()`), remainder appended via the team suffix (`getNicknameOverflow()` + `updateTeamDecorations()`). AFK and name color are also applied through the scoreboard team. Do not try to force long names into the GameProfile. Keep ProtocolLib support intact.
+The GameProfile name is hard-limited to **16 UTF-16 units**; `team.prefix`/`team.suffix` are unlimited text Components. `NameChangeListener` (ProtocolLib) rewrites the profile name, and `PlayerData` splits a long nickname: first 16 units in the profile name (`getProfileName()`), remainder appended via the team suffix (`getNicknameOverflow()` + `updateTeamDecorations()`) so the full nickname shows on the vanilla name tag. The split never lands inside a surrogate pair. AFK and name color are also applied through the scoreboard team. Do not try to force names longer than 16 units into the GameProfile. Keep ProtocolLib support intact.
 
 ## Style
 
